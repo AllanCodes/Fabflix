@@ -1,0 +1,6 @@
+The LIKE predicate is only used in a few places in our project.
+
+All of our queries are done through the com.database.access package, more specifically Queries.java.
+
+1. When we browse for a title by the first letter, we use LIKE.
+2. When we make search queries, we use LIKE to match for everything.

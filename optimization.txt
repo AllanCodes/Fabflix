@@ -1,0 +1,15 @@
+XML Parsing Optimizations:
+
+We initially began the parsing with a DOM implementation, but when we finished writing everything, it took about a minute longer than our SAX implementation.  We remained with the SAX implementation since it performed a little better than the DOM.  
+
+Further, we had initially kept all our information in an ArrayList of ArrayLists.  We thought this had quick insertion, however when it came to insertion into the database, and we wanted to go back to these lists of information to pull things like movie ID’s we had saved, it became a problem.  So thus, for the movie parsing we initially began with a max id, pulled from the db, and we incremented it and stored it in a HashMap<String, ArrayList<String>>. The list contained all necessary information about the movie including id, title, director, year, genres.  This way when it came to insertion, everything was set up.
+
+The cast/actors were parsed and then ran through together, to connect information together.  These were stored in a hash map like the movies were, with the key being the star name and the list being their id, name, birth year (if available), and movies they’ve played in. 
+
+We made a few minute completion time improvement, by using this method mainly because it allows us to grab movie Id’s and star Id’s through the use of the hash map when we are inserting into the database.  So when inserting into the genres_in_movies/stars_in_movies we cane query for the movie name in the hash map, O(1), and get the id for the movie.  Thus no look up is necessary, and if the movie was never added due to some reason, an exception handles that and prints out.  
+
+We also, store the genre id’s of old and new genres that are created based off this parsing in a hash table, so when we encounter the same genre, instead of looking if it exists in mysql, we look in our hash table, and if it doesn’t exist, we have a max counter that we can increment to create its new id.
+
+We do a lot of in memory processing, so while this takes some memory usage, it allows us to receive very fast results, because for one we don’t just query the database every time to receive a new id, any query to the database is necessary and can’t really be worked around without more memory usage.
+
+With all these methods our runtime was: ~ 5 minutes

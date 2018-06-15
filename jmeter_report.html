@@ -1,0 +1,114 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    background-color: linen;
+}
+
+td {
+    border-top-style: solid;
+}
+</style>
+</head>
+<body>
+
+<table style="width:100%">
+  <tr style="font-weight:bold; background-color: orange">
+    <td width="300px">Single-instance version cases</td>
+    <td>Graph Results Screenshot</td>
+    <td>Average Query Time(ms)</td>
+    <td>Average Search Servlet Time(ms)</td>
+    <td>Average JDBC Time(ms)</td>
+    <td>Analysis</td>
+  </tr>
+  <tr>
+    <td>Case 1: HTTP/1 thread</td>
+    <td><img src="new_times/single_1_graph.png" alt="Graph Results Screenshot Case 1" style="width:304px;height:228px;"></td>
+    <td>69</td>
+    <td>0.80 ms</td>
+    <td>0.75 ms</td>
+    <td>With 1 thread we get surprisingly decent time, there is no load balancing overhead or https, this is expected to be decently quick.</td>
+  </tr>
+  <tr>
+    <td>Case 2: HTTP/10 threads</td>
+    <td><img src="new_times/single_2_graph.png" alt="Graph Results Screenshot Case 2" style="width:304px;height:228px;"></td>
+    <td>141</td>
+    <td>1.00 ms</td>
+    <td>0.96 ms</td>
+    <td>10 threads on the single instance causes it to be slower than the single thread, since there is no load balancing.</td>
+  </tr>
+  <tr>
+    <td>Case 3: HTTPS/10 threads</td>
+    <td><img src="new_times/single_3_graph.png" alt="Graph Results Screenshot Case 3" style="width:304px;height:228px;"></td>
+    <td>239</td>
+    <td>1.22 ms</td>
+    <td>1.17 ms</td>
+    <td>10 threads with https overhead gives us more downtime doing checks and security measures, hence we get a plain old longer time to complete.</td>
+  </tr>
+  <tr>
+    <td>Case 4: HTTP/10 threads/No prepared statements</td>
+    <td><img src="new_times/single_4_graph.png" alt="Graph Results Screenshot Case 4" style="width:304px;height:228px;"></td>
+    <td>298</td>
+    <td>1.14 ms</td>
+    <td>1.10 ms</td>
+    <td>Without prepared statements we see it is still better than https, but JDBC takes long because of the constant query building and querying.</td>
+  </tr>
+  <tr>
+    <td>Case 5: HTTP/10 threads/No connection pooling</td>
+    <td><img src="new_times/single_5_graph.png" alt="Graph Results Screenshot Case 4" style="width:304px;height:228px;"></td>
+    <td>165</td>
+    <td>3.37 ms</td>
+    <td>3.07 ms</td>
+    <td>Connection pooling is necessary for multiple users as it really does slow it down, especially on one instance the servlet time is very large.</td>
+  </tr>
+
+</table> 
+
+
+<table style="width:100%">
+  <tr style="font-weight:bold; background-color: orange">
+    <td width="300px">Scaled version cases</td>
+    <td>Graph Results Screenshot</td>
+    <td>Average Query Time(ms)</td>
+    <td>Average Search Servlet Time(ms)</td>
+    <td>Average JDBC Time(ms)</td>
+    <td>Analysis</td>
+  </tr>
+  <tr>
+    <td>Case 1: HTTP/1 thread</td>
+    <td><img src="new_times/scaled_1_graph.png" alt="Graph Results Screenshot Case 1" style="width:304px;height:228px;"></td>
+    <td>72</td>
+    <td>1.06 ms</td>
+    <td>0.98 ms</td>
+    <td>We get decent time here with a single thread becase of connection pooling and prepared statements. Since its a single thread there isn't much improvement on JDBC.</td>
+  </tr>
+  <tr>
+    <td>Case 2: HTTP/10 threads</td>
+    <td><img src="new_times/scaled_2_graph.png" alt="Graph Results Screenshot Case 2" style="width:304px;height:228px;"></td>
+    <td>187</td>
+    <td>0.82 ms</td>
+    <td>0.76 ms</td>
+    <td>10 threads gives us slightly better time and we get less JDBC processing time. </td>
+  </tr>
+  <tr>
+    <td>Case 3: HTTP/10 threads/No prepared statements</td>
+    <td><img src="new_times/scaled_3_graph.png" alt="Graph Results Screenshot Case 4" style="width:304px;height:228px;"></td>
+    <td>131 ms</td>
+    <td>1.09 ms</td>
+    <td>1.02 ms</td>
+    <td>Without prepared statements we get a higher JDBC time, and generally higher servlet time.</td>
+  </tr>
+  <tr>
+    <td>Case 4: HTTP/10 threads/No connection pooling</td>
+    <td><img src="new_times/scaled_4_graph.png" alt="Graph Results Screenshot Case 4" style="width:304px;height:228px;"></td>
+    <td>135 ms</td>
+    <td>3.04 ms</td>
+    <td>2.75 ms</td>
+    <td>With no connection pooling we can see the real issue of having many requests with a standard connection. Pooling helps a lot.</td>
+  </tr>
+
+</table> 
+
+</body>
+</html>
